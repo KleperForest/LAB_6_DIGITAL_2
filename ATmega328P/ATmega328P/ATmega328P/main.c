@@ -1,62 +1,68 @@
-#define F_CPU 16000000
+///////////////////////////////////////////////////////////////////////
+// Universidad Del Valle De Guatemala
+// IE2023: Electronica digital 2
+// Autor: Alan Gomez - 22115
+// Proyecto: Laboratorio 6 - UART con ATmega328P Microchips AVR, Lenguaje C.
+// Hardware: ATmega328P
+// Creado: 20/09/2024
+///////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////
+// F_CPU ATmega
+////////////////////////////////////////////
+#define F_CPU 16000000 // Definimos la frecuencia con la que trabaja el ATmega328P
+////////////////////////////////////////////
+// Librerias
+////////////////////////////////////////////
 #include <avr/io.h>
-#include <avr/interrupt.h>+
-#include <avr/delay.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
 
-// Definir el pin del botón
+////////////////////////////////////////////
+// Definiciones de Pines
+////////////////////////////////////////////
 #define BOTON_PIN_PD2 PD2
-#define BOTON_PIN_PD3 PD3
-#define BOTON_PIN_PD4 PD4
-#define BOTON_PIN_PD5 PD5
-#define BOTON_PIN_PD6 PD6
-#define BOTON_PIN_PD7 PD7
 
-// Variable para almacenar el estado del botón
-volatile uint8_t state_B2 = 0;
-volatile uint8_t state_B3 = 0;
-volatile uint8_t state_B4 = 0;
-volatile uint8_t state_B5 = 0;
-volatile uint8_t state_B6 = 0;
-volatile uint8_t state_B7 = 0;
+////////////////////////////////////////////
+// Variables
+////////////////////////////////////////////
+volatile uint8_t state_D2 = 0;
 
+////////////////////////////////////////////
+// SETUP
+////////////////////////////////////////////
 void setup() {
-	// Configura el pin del botón como entrada con resistencia Pull-Up
-	DDRD &= ~(1 << BOTON_PIN_PD2);  // Configura el pin como entrada
-	PORTD |= (1 << BOTON_PIN_PD2);  // Habilita la resistencia Pull-Up
+	// Configurar pin PD2 como entrada con resistencia Pull-Up
+	DDRD &= ~(1 << BOTON_PIN_PD2);  // Configura PD2 como entrada
+	PORTD |= (1 << BOTON_PIN_PD2);  // Activa resistencia Pull-Up
 
-	// Configura el pin PB5 (LED integrado en el ATmega328P) como salida
+	// Configurar PB5 como salida (LED integrado)
 	DDRB |= (1 << PB5);
 
-	// Habilitar las interrupciones por cambio de estado para el pin PD4
-	PCICR |= (1 << PCIE2);  // Habilita las interrupciones por cambio de estado para PCINT[23:16] (PORTD)
-	PCMSK2 |= (1 << PCINT20);  // Habilita la interrupción en el pin PD4
+	// Habilitar interrupción externa para PD2
+	EICRA |= (1 << ISC01);  // Flanco de bajada para INT0
+	EIMSK |= (1 << INT0);   // Habilitar interrupción INT0
 
 	// Habilitar interrupciones globales
 	sei();
 }
 
+////////////////////////////////////////////
+// LOOP Secundario
+////////////////////////////////////////////
 void loop() {
-	// Controla el LED según el estado del botón
-	if (state_B2) {
-		PORTB |= (1 << PB5);  // Enciende el LED si el botón está en HIGH
+	// Controlar el LED según el estado del botón en PD2
+	if (state_D2) {
+		PORTB |= (1 << PB5);  // Enciende el LED si el botón está presionado
 		} else {
-		PORTB &= ~(1 << PB5);  // Apaga el LED si el botón está en LOW
+		PORTB &= ~(1 << PB5); // Apaga el LED si el botón no está presionado
 	}
 }
 
-// Esta es la rutina de servicio de interrupción para los pines de PORTD (pines D0 a D7)
-ISR(PCINT2_vect) {
-	// Detecta el cambio de estado en el pin PD4
-	if (!(PIND & (1 << BOTON_PIN_PD2))) {
-		state_B2 = !state_B2;  // Cambia el estado del botón
-	}
-}
-
-int main(void) {
-	setup();
-	while (1) {
-		loop();
-		_delay_ms(100);
-	}
+////////////////////////////////////////////
+// Rutina de servicio de interrupción (ISR)
+////////////////////////////////////////////
+// ISR para INT0 (PD2)
+ISR(INT0_vect) {
+	state_D2 = !state_D2;  // Cambia el estado de D2
 }
