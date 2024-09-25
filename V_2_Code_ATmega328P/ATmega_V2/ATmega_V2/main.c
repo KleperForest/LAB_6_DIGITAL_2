@@ -38,7 +38,7 @@ volatile uint8_t BTN_STATE_4 = 0;
 volatile uint8_t BTN_STATE_5 = 0;
 volatile uint8_t BTN_STATE_6 = 0;
 
-const uint8_t delay_time = 11;// tiempo de antirrebote
+const uint8_t delay_time = 100;// tiempo de antirrebote
 
 uint8_t dato=0;
 
@@ -65,45 +65,44 @@ void setup() {
 void TT_BOUNCE(void);
 TT_BOUNCE(){
 	if(BTN_STATE_1){
-		_delay_ms(delay_time);// dealy de push
 		BTN_STATE_1 = 0;
 		// Accion 
 		writeTextUART("1");
 		writeTextUART("\n");
+		_delay_ms(delay_time);// dealy de push
 		}
 	if(BTN_STATE_2){
-		_delay_ms(delay_time);// dealy de push
 		BTN_STATE_2 = 0;
 		// Accion
 		writeTextUART("2");
 		writeTextUART("\n");
+		_delay_ms(delay_time);// dealy de push
 		}
 	if(BTN_STATE_3){
-		_delay_ms(delay_time);// dealy de push
 		BTN_STATE_3 = 0;
 		// Accion
 		writeTextUART("3");
 		writeTextUART("\n");
+		_delay_ms(delay_time);// dealy de push
 		}
 	if(BTN_STATE_4){
-		_delay_ms(delay_time);// dealy de push
 		BTN_STATE_4 = 0;
 		//Accion
 		writeTextUART("4");
 		writeTextUART("\n");
+		_delay_ms(delay_time);// dealy de push
 		}
 	if(BTN_STATE_5){
-		_delay_ms(1);// dealy de push
 		BTN_STATE_5 = 0;
 		//Accion
-		writeTextUART("A");
+		writeTextUART("B");
 		writeTextUART("\n");
+		_delay_ms(delay_time);// dealy de push
 		}
 	if(BTN_STATE_6){
-		_delay_ms(1);// dealy de push
 		BTN_STATE_6 = 0;
 		//Accion
-		writeTextUART("B");
+		writeTextUART("A");
 		writeTextUART("\n");
 		_delay_ms(delay_time);// dealy de push
 		}
@@ -115,27 +114,35 @@ ISR(PCINT2_vect) {
 
 	// Detecta el cambio de estado en el pin PD2
 	if (!(PIND & (1 << BOTON_PIN1))) {
-		BTN_STATE_1 = 1; // Indica que se presionó un botón
+		BTN_STATE_1 = (BTN_STATE_1 == 0) ? 1:0; // Indica que se presionó un botón 
 	}
 	// Detecta el cambio de estado en el pin PD3
-	if (!(PIND & (1 << BOTON_PIN2))) {
-		BTN_STATE_2 = 1; // Indica que se presionó un botón
+	else if (!(PIND & (1 << BOTON_PIN2))) {
+		BTN_STATE_2 = (BTN_STATE_2 == 0) ? 1:0; // Indica que se presionó un botón
 	}
 	// Detecta el cambio de estado en el pin PD4
-	if (!(PIND & (1 << BOTON_PIN3))) {
-		BTN_STATE_3 = 1; // Indica que se presionó un botón
+	else if (!(PIND & (1 << BOTON_PIN3))) {
+		BTN_STATE_3 = (BTN_STATE_3 == 0) ? 1:0; // Indica que se presionó un botón
 	}
 	// Detecta el cambio de estado en el pin PD5
-	if (!(PIND & (1 << BOTON_PIN4))) {
-		BTN_STATE_4 = 1; // Indica que se presionó un botón
+	else if (!(PIND & (1 << BOTON_PIN4))) {
+		BTN_STATE_4 = (BTN_STATE_4 == 0) ? 1:0; // Indica que se presionó un botón
 	}
 	// Detecta el cambio de estado en el pin PD6
-	if (!(PIND & (1 << BOTON_PIN5))) {
-		BTN_STATE_5 = 1; // Indica que se presionó un botón
+	else if (!(PIND & (1 << BOTON_PIN5))) {
+		BTN_STATE_5 = (BTN_STATE_5 == 0) ? 1:0; // Indica que se presionó un botón
 	}
 	// Detecta el cambio de estado en el pin PD7
-	if (!(PIND & (1 << BOTON_PIN6))) {
-		BTN_STATE_6 = 1; // Indica que se presionó un botón
+	else if (!(PIND & (1 << BOTON_PIN6))) {
+		BTN_STATE_6 = (BTN_STATE_6 == 0) ? 1:0; // Indica que se presionó un botón
+	}
+	else {
+		BTN_STATE_1 = 0;
+		BTN_STATE_2 = 0;
+		BTN_STATE_3 = 0;
+		BTN_STATE_4 = 0;
+		BTN_STATE_5 = 0;
+		BTN_STATE_6 = 0;
 	}
 }
 // Codigo Principal
